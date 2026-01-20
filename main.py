@@ -32,6 +32,15 @@ def find_post(id):
         if p["id"] == id:
             return p
 
+def find_index_post(id):
+    for i, p in enumerate(my_posts):
+        if p["id"] == id:
+            return i
+        
+
+
+
+
 @app.get("/")   #Decorator, without it, its simple python
 def root():
     return {"message": "Hello World From Ubuntu"}
@@ -62,3 +71,27 @@ def get_posts(id: int, response: Response):
 # def get_latest_post():
 #     post = my_posts[len(my_posts) - 1]
 #     return {"detail": post}
+
+@app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(id: int):
+    #deleting post
+    #find the index in the array that has required ID
+    #my_posts.pop(index) 
+    index = find_index_post(id)
+
+    if index == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
+    my_posts.pop(index)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@app.put("/posts/{id}")
+def update_posts(id: int, post:Post):
+    index = find_index_post(id)
+
+    if index == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
+    
+    post_dict = post.dict()
+    post_dict['id'] = id
+    my_posts[index] = post_dict
+    return {"data":post_dict}
