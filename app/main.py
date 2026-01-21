@@ -3,7 +3,9 @@ from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
-
+import psycopg2
+from psycopg2.extras import RealDictCursor 
+import time
 
 app = FastAPI()
 
@@ -11,8 +13,18 @@ class Post(BaseModel):
     title: str
     content: str
     published: bool = True  #optional field(default true)
-    rating: Optional[int] = None
-
+    
+while True:
+    try:
+        conn = psycopg2.connect(host = 'localhost', database = 'fastapiDB', user = 'postgres', password='318204', cursor_factory=RealDictCursor)
+        
+        cursor =  conn.cursor()
+        print('Database Connection Succesfull.!!')
+        break
+    except Exception as error:
+        print("Connection Failed")
+        print("Error: ", error)
+        time.sleep(2) #will keep trying to connect ever t sec
 
 my_posts = [
     {
@@ -48,14 +60,18 @@ def root():
 
 @app.get("/posts")
 def get_posts():
-    return {"Using Array": my_posts}
+    cursor.execute('''SELECT * FROM posts''')
+    posts= cursor.fetchall()
+    print(posts)
+    return {"From DB": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
 def create_posts(newPost: Post):
-    post_dict = newPost.dict()
-    post_dict['id'] = randrange(0, 100000000)
-    my_posts.append(post_dict)
-    return {"Data": post_dict}
+    cursor.execute(''' INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * ''',
+                    (newPost.title, newPost.content, newPost.published))
+    posts = cursor.fetchone()
+    conn.commit()
+    return {"Data": posts}
     
 
 @app.get("/posts/{id}")
