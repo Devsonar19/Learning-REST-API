@@ -85,7 +85,7 @@ def create_posts(newPost: Post, db : Session = Depends(get_db)):
         #                 (newPost.title, newPost.content, newPost.published)) #not using f string because it's prone to sql injection
         # posts = cursor.fetchone()
         # conn.commit()
-    newPost= models.Post(**newPost.dict())
+    newPost= models.Post(**newPost.model_dump())
     db.add(newPost)
     db.commit()
     db.refresh(newPost)
@@ -141,7 +141,7 @@ def update_posts(id: int, post:Post, db : Session = Depends(get_db)):
     if up_posts == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
     
-    updated_posts.update(post.dict(), synchronize_session=False)
+    updated_posts.update(post.model_dump(), synchronize_session=False)
     db.commit()
 
     return {"data":updated_posts.first()}
