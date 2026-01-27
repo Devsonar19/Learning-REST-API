@@ -6,12 +6,12 @@ from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor 
 import time
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 
-pwd_context  = CryptContext(schemes=["bcrypt"], deprecated = "auto")
+
+
 
 app = FastAPI()
 
@@ -144,9 +144,9 @@ def update_posts(id: int, post:schemas.PostCreate, db : Session = Depends(get_db
 def create_user(newUser: schemas.UserCreate, db : Session = Depends(get_db)):
 
     #Hash Password
-    hashed_passowrd = pwd_context.hash(newUser.password)
+    hashed_passowrd = utils.hashPassword(newUser.password)
     newUser.password = hashed_passowrd
-    
+
     newUser= models.User(**newUser.model_dump())
     db.add(newUser)
     db.commit()
