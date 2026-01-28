@@ -5,7 +5,8 @@ from ..database import get_db
 from typing import List
 
 router = APIRouter(
-    prefix="/posts" + id
+    prefix="/posts",
+    tags=['Posts']
 )
 
 
