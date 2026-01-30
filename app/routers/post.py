@@ -26,7 +26,7 @@ def create_posts(newPost: schemas.PostCreate, db : Session = Depends(get_db), ge
         #                 (newPost.title, newPost.content, newPost.published)) #not using f string because it's prone to sql injection
         # posts = cursor.fetchone()
         # conn.commit()
-    newPost= models.Post(**newPost.model_dump())
+    newPost= models.Post(owner_id = get_current_user.id, **newPost.model_dump())
     db.add(newPost)
     db.commit()
     db.refresh(newPost)
