@@ -62,6 +62,9 @@ def delete_post(id: int, db : Session = Depends(get_db), get_current_user: int =
     if delete_post.first == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
 
+    if delete_post.owner_id != get_current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not Authorized to perform action')
+
     delete_post.delete(synchronize_session=False)
     db.commit()
 
@@ -82,6 +85,10 @@ def update_posts(id: int, post:schemas.PostCreate, db : Session = Depends(get_db
     if up_posts == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
     
+
+    if up_posts.owner_id != get_current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not Authorized to perform action')
+
     updated_posts.update(post.model_dump(), synchronize_session=False)
     db.commit()
 
