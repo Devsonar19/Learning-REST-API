@@ -3,6 +3,8 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import get_db
 from typing import List
+from sqlalchemy.orm import joinedload
+
 
 router = APIRouter(
     prefix="/posts",
@@ -12,12 +14,17 @@ router = APIRouter(
 
 #GET POSTS
 @router.get("/", response_model=List[schemas.Post])
-def get_posts(db : Session = Depends(get_db), get_current_user: int = Depends(oauth.get_current_user)):
-        # cursor.execute('''SELECT * FROM posts''')
-        # posts= cursor.fetchall()
-
-    posts = db.query(models.Post).all()
+def get_posts(
+    db: Session = Depends(get_db),
+    get_current_user=Depends(oauth.get_current_user)
+):
+    posts = (
+        db.query(models.Post)
+        .options(joinedload(models.Post.owner))
+        .all()
+    )
     return posts
+
 
 #CREATE POSTS
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
@@ -35,18 +42,26 @@ def create_posts(newPost: schemas.PostCreate, db : Session = Depends(get_db), ge
     
 #GET POSTS BY ID
 @router.get("/{id}", response_model=schemas.Post)
-def get_posts(id: int, db : Session = Depends(get_db), get_current_user: int = Depends(oauth.get_current_user)):
-    # cursor.execute('''SELECT * FROM posts WHERE id = %s ''', (str(id)))
-    # post = cursor.fetchone()
-
-    post = db.query(models.Post).filter(models.Post.id == id).first()
-
+def get_post(
+    id: int,
+    db: Session = Depends(get_db),
+    get_current_user=Depends(oauth.get_current_user)
+):
+    post = (
+        db.query(models.Post)
+        .options(joinedload(models.Post.owner))
+        .filter(models.Post.id == id)
+        .first()
+    )
 
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} was not found")
-        # response.status_code = status.HTTP_404_NOT_FOUND
-        # return {'message':f"Post with {id} was not found"}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Post with {id} was not found"
+        )
+
     return post
+
 
 
 #DELETE POSTS BY ID
@@ -58,11 +73,12 @@ def delete_post(id: int, db : Session = Depends(get_db), get_current_user: int =
         # conn.commit()
 
     delete_post = db.query(models.Post).filter(models.Post.id == id)
+    post = delete_post.first()
 
-    if delete_post.first == None:
+    if post is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post with {id} does not Exists")
 
-    if delete_post.owner_id != get_current_user.id:
+    if post.owner_id != get_current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not Authorized to perform action')
 
     delete_post.delete(synchronize_session=False)
