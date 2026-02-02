@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, conint
 from datetime import datetime
 from typing import Optional
 
@@ -12,8 +12,7 @@ class UserOp(BaseModel):
     email : EmailStr
     created_at : datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserLogin(BaseModel):
     email : EmailStr
@@ -51,3 +50,9 @@ class Post(PostBase):
 
     class Config:
         orm_mode = True
+
+class Vote(BaseModel):
+    post_id: int
+    dir: conint(le=1)
+    
+    
