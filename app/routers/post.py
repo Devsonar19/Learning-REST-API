@@ -61,15 +61,25 @@ def create_posts(newPost: schemas.PostCreate, db : Session = Depends(get_db), ge
     return newPost
     
 #GET POSTS BY ID
-@router.get("/{id}", response_model=schemas.Post)
+@router.get("/{id}", response_model=schemas.PostOut)
 def get_post(
     id: int,
     db: Session = Depends(get_db),
     get_current_user=Depends(oauth.get_current_user)
 ):
     post = (
-        db.query(models.Post)
-        .options(joinedload(models.Post.owner))
+        db.query(
+            models.Post, 
+            func.count(models.Vote.post_id).label("Votes")
+        )
+        .join(
+            models.Vote, 
+            models.Vote.post_id == models.Post.id, 
+            isouter=True
+        )
+        .group_by(
+            models.Post.id
+        )
         .filter(models.Post.id == id)
         .first()
     )
