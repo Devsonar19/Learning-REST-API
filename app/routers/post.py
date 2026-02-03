@@ -23,7 +23,7 @@ def get_posts(
     search : Optional[str] = ""
     ):
     
-    results = (
+    posts = (
         db.query(
             models.Post, 
             func.count(models.Vote.post_id).label("Votes")
@@ -36,12 +36,14 @@ def get_posts(
         .group_by(
             models.Post.id
         )
+        .filter(models.Post.title.contains(search))
+        .group_by(models.Post.id)
+        .limit(limit)
+        .offset(skip)
         .all()
     )
 
-    print(results)
-
-    return results
+    return posts
 
 
 #CREATE POSTS
