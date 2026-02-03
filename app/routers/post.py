@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from typing import List, Optional
 from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 
 
 router = APIRouter(
@@ -20,7 +21,7 @@ def get_posts(
     limit : int = 10,
     skip : int = 0,
     search : Optional[str] = ""
-):
+    ):
     posts = (
         db.query(models.Post)
         .options(joinedload(models.Post.owner))
@@ -29,7 +30,9 @@ def get_posts(
         .offset(skip)
         .all()
     )
-    return posts
+
+    results = db.query(models.Post, func.count(models.Vote.post_id).label("Votes")).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).all()
+    return results
 
 
 #CREATE POSTS
