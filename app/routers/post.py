@@ -22,16 +22,22 @@ def get_posts(
     skip : int = 0,
     search : Optional[str] = ""
     ):
-    posts = (
-        db.query(models.Post)
-        .options(joinedload(models.Post.owner))
-        .filter(models.Post.title.contains(search))
-        .limit(limit)
-        .offset(skip)
+    
+    results = (
+        db.query(
+            models.Post, 
+            func.count(models.Vote.post_id).label("Votes")
+        )
+        .join(
+            models.Vote, 
+            models.Vote.post_id == models.Post.id, 
+            isouter=True
+        )
+        .group_by(
+            models.Post.id
+        )
         .all()
     )
-
-    results = db.query(models.Post, func.count(models.Vote.post_id).label("Votes")).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).all()
 
     print(results)
 
