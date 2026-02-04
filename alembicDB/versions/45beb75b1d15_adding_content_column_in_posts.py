@@ -29,6 +29,7 @@ def upgrade() -> None:
         'content',
         server_default=None
     )
+    pass
     
 
 
