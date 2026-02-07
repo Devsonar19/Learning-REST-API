@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = [
-    "https://www.google.com"
+    "*"
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -18,8 +18,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models.Base.metadata.create_all(bind = engine)
-
+@app.on_event("startup")
+def on_startup():
+    models.Base.metadata.create_all(bind=engine)
 
 #ROOT GET
 @app.get("/")   #Decorator, without it, its simple python
