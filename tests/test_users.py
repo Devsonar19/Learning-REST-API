@@ -7,3 +7,5 @@ def test_root():
     res = client.get("/")
     print(res.json())
     assert res.json().get('message') == 'Hello World From Ubuntu'
+    assert res.status_code == 200
+    
