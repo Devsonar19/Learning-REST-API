@@ -17,7 +17,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def session():
     # we can run after test finishes
     #running fixtures
@@ -31,7 +31,7 @@ def session():
         db.close()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def client(session):
     def override_get_db():
         try:
