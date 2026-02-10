@@ -7,7 +7,7 @@ import pytest
 from app.database import get_db, Base
 from app.main import app
 from fastapi.testclient import TestClient
-    
+
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -17,9 +17,10 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def session():
     # we can run after test finishes
+    #running fixtures
     Base.metadata.dropall(bind=engine)
     # we can run code before we run our test
     Base.metadata.createall(bind=engine)
@@ -30,7 +31,7 @@ def session():
         db.close()
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def client(session):
     def override_get_db():
         try:
