@@ -8,7 +8,6 @@ from app.database import get_db, Base
 from app.main import app
 from fastapi.testclient import TestClient
 from app.oauth import create_access_token
-from app import models
 
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -67,43 +66,3 @@ def authorized_client(client, token):
     }
     return client
 
-@pytest.fixture
-def test_posts(test_user, session):
-    posts_data = [
-        {
-            "title":"1st title",
-            "content":"1st content",
-            "owner_id":test_user['id']
-        },
-        {
-            "title":"2nd title",
-            "content":"2nd content",
-            "owner_id":test_user['id']
-        },
-        {
-            "title":"3rd title",
-            "content":"3rd content",
-            "owner_id":test_user['id']
-        }
-    ]
-    def create_post_model(post):
-        return models.Post(**post)
-    
-    post_map = map(create_post_model, posts_data)
-    list_posts = list(post_map)
-
-    session.add_all(list_posts)
-    session.commit()
-    res = session.query(models.Post).all()
-    return res
-
-def test_unauthorized_user_get_all_posts(client, test_posts):
-    res = client.get("/posts/")
-
-    assert res.status_code == 401
-
-
-def test_unauthorized_user_get_one_post(client, test_posts):
-    res = client.get(f"/posts/{test_posts[0].id}")
-
-    assert res.status_code == 401
