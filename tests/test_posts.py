@@ -69,4 +69,45 @@ def test_get_one_post(authorized_client, test_posts):
     assert post.Post.id == test_posts[0].id
     assert post.Post.title == test_posts[0].title
     assert post.Post.content == test_posts[0].content
-    
+
+@pytest.mark.parametrize(
+    "title, content, published",
+    [
+        ("1st title", "some content", True),
+        ("2nd title", "some content 2", False),
+        ("3rd title", "some content 3", True),
+    ] 
+)
+def test_create_post(authorized_client, test_user, test_posts, title, content, published):
+    res = authorized_client.post(
+        "/posts/",
+        json = {"title":title, "content":content, "published":published}
+    )
+
+    created_post = schemas.Post(**res.json())
+    assert res.status_code == 201
+    assert created_post.title == title
+    assert created_post.content == content
+    assert created_post.published == published
+    assert created_post.owner_id == test_user['id']
+
+def test_create_post_default_published_is_true(authorized_client, test_user, test_posts):
+    res = authorized_client.post(
+        "/posts/",
+        json = {"title":"ramdom", "content":"ramdom"}
+    )
+
+    created_post = schemas.Post(**res.json())
+    assert res.status_code == 201
+    assert created_post.title == "random"
+    assert created_post.content == "ramdom"
+    assert created_post.published == True
+    assert created_post.owner_id == test_user['id']
+   
+def test_unauthorized_user_create_post(client, test_posts, test_user):
+    res = client.post(
+        "/posts/",
+        json = {"title":"ramdom", "content":"ramdom"}
+    )
+
+    assert res.status_code == 401  
