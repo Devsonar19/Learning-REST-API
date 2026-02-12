@@ -16,3 +16,7 @@ jobs:
         run: python3 -m pip install --upgrade pip
       - name: Installing Dependencies
         run: pip3 install -r requirements.txt
+      - name: Testing with pytest
+        run: |
+          pip install pytest
+          pytest
