@@ -37,7 +37,7 @@ def test_user2(client):
     assert res.status_code == 201
     print(res.json())
     new_user = res.json()
-    new_user = ['password'] = user_data['password']
+    new_user['password'] = user_data['password']
     return new_user
 
 @pytest.fixture
