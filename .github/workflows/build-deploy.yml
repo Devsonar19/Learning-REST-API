@@ -14,6 +14,7 @@ jobs:
       SECRET_KEY: ${{secrets.SECRET_KEY}}
       ALGORITHM: ${{secrets.ALGORITHM}}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRE_MINUTES}}
+      DATABASE_URL: postgresql://${{secrets.DATABASE_USERNAME}}:${{secrets.DATABASE_PASSWORD}}@postgres:5432/${{secrets.DATABASE_NAME}}
     
     services:
       postgres:
