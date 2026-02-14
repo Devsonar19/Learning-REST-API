@@ -25,7 +25,7 @@ def on_startup():
 #ROOT GET
 @app.get("/")   #Decorator, without it, its simple python
 def root():
-    return {"message": "Hello World From Ubuntu"}
+    return {"message": "Hello World From Ubuntu, go to /docs to access Swagger UI"}
 
 app.include_router(post.router)
 app.include_router(user.router)
