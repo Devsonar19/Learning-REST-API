@@ -12,12 +12,9 @@ SQLALCHEMY_DATABASE_URL = "postgresql://postgres:password@localhost/fastapi_test
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-
+# TEST USER
 @pytest.fixture
 def test_user(client):
     user_data = {"email":"hello@gmail.com", "password":"123456"}
@@ -40,6 +37,7 @@ def test_user2(client):
     new_user['password'] = user_data['password']
     return new_user
 
+# TEST POSTS
 @pytest.fixture
 def test_posts(test_user, test_user2,session):
     posts_data = [
@@ -75,6 +73,7 @@ def test_posts(test_user, test_user2,session):
     res = session.query(models.Post).all()
     return res
 
+# SESSIONS
 @pytest.fixture
 def session():
     # we can run after test finishes
@@ -89,6 +88,7 @@ def session():
         db.close()
 
 
+# CLIENT 
 @pytest.fixture
 def client(session):
     def override_get_db():
@@ -98,10 +98,12 @@ def client(session):
     yield TestClient(app)
     app.dependency_overrides.clear()
     
+# TOKEN 
 @pytest.fixture
 def token(test_user):
     return create_access_token({"user_id": test_user['id']})
 
+#UNAUTHORIZED
 @pytest.fixture
 def authorized_client(client, token):
     client.headers = {
