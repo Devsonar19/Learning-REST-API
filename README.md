@@ -16,6 +16,8 @@ The goal was to understand how all backend components work together:
 ```
 Client → API → Auth → Database → Deployment → Monitoring
 
+```
+
 ## 🔐 Authentication System
 
 - JWT access tokens  
