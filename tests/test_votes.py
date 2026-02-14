@@ -1,7 +1,7 @@
 import pytest
 from app import models
 
-
+# VOTE
 @pytest.fixture()
 def test_vote(test_posts, session, test_user):
     new_vote = models.Vote(
@@ -11,7 +11,7 @@ def test_vote(test_posts, session, test_user):
     session.add(new_vote)
     session.commit()
 
-
+# VOTE ON POST
 def test_vote_on_post(authorized_client, test_posts):
     res = authorized_client.post(
         "/vote/",
@@ -19,7 +19,7 @@ def test_vote_on_post(authorized_client, test_posts):
     )
     assert res.status_code == 201
 
-
+# VOTE TWICE
 def test_vote_twice_post(authorized_client, test_posts, test_vote):
     res = authorized_client.post(
         "/vote/",
@@ -27,7 +27,7 @@ def test_vote_twice_post(authorized_client, test_posts, test_vote):
     )
     assert res.status_code == 409
 
-
+# DELETE VOTE
 def test_delete_vote(authorized_client, test_posts, test_vote):
     res = authorized_client.post(
         "/vote/",
@@ -51,7 +51,7 @@ def test_vote_post_non_exist(authorized_client):
     )
     assert res.status_code == 404
 
-
+# VOTE UNAUTHORIZED 
 def test_vote_post_unauthorized_user(client, test_posts):
     res = client.post(
         "/vote/",

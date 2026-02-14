@@ -3,19 +3,19 @@ from jose import jwt
 from app.config import settings
 import pytest
 
-
+# ROOT
 def test_root(client):
     res = client.get("/")
     assert res.status_code == 200
 
-
+# CREATE
 def test_create_user(client):
     res = client.post("/users/", json={"email": "hello@gmail.com", "password": "123456"})
     new_user = schemas.UserOp(**res.json())
     assert new_user.email == "hello@gmail.com"
     assert res.status_code == 201
 
-
+# LOGIN
 def test_login_user(client, test_user):
     res = client.post(
         "/login",

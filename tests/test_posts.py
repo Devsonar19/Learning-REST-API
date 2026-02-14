@@ -1,7 +1,7 @@
 import pytest
 from app import schemas
 
-
+# GET ALL POSTS
 def test_get_all_posts(authorized_client, test_posts):
     res = authorized_client.get("/posts/")
     posts = [schemas.PostOut(**post) for post in res.json()]
@@ -9,7 +9,7 @@ def test_get_all_posts(authorized_client, test_posts):
     assert len(posts) == len(test_posts)
     assert res.status_code == 200
 
-
+# UNAUTHORIZED
 def test_unauthorized_user_get_all_posts(client, test_posts):
     res = client.get("/posts/")
     assert res.status_code == 401
@@ -24,7 +24,7 @@ def test_get_one_post_not_exist(authorized_client):
     res = authorized_client.get("/posts/6969")
     assert res.status_code == 404
 
-
+# GET ONE POST
 def test_get_one_post(authorized_client, test_posts):
     res = authorized_client.get(f"/posts/{test_posts[0].id}")
     post = schemas.PostOut(**res.json())
@@ -32,7 +32,7 @@ def test_get_one_post(authorized_client, test_posts):
     assert post.Post.id == test_posts[0].id
     assert res.status_code == 200
 
-
+# CREATE POST
 @pytest.mark.parametrize(
     "title, content, published",
     [
@@ -65,7 +65,7 @@ def test_create_post_default_published_is_true(authorized_client, test_user):
     assert res.status_code == 201
     assert created_post.published is True
 
-
+# DELETE POST
 def test_delete_post_success(authorized_client, test_posts):
     res = authorized_client.delete(f"/posts/{test_posts[0].id}")
     assert res.status_code == 204
@@ -80,7 +80,7 @@ def test_delete_other_user_post(authorized_client, test_posts):
     res = authorized_client.delete(f"/posts/{test_posts[3].id}")
     assert res.status_code == 403
 
-
+# UPDATE POST
 def test_update_post(authorized_client, test_posts):
     data = {"title": "updated title", "content": "new content"}
     res = authorized_client.put(f"/posts/{test_posts[0].id}", json=data)
